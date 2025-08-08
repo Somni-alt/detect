@@ -9,19 +9,8 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
-    "@/*": ["./*"]
+      "@/*": ["./*"]
     }
-    "forceConsistentCasingInFileNames": true,
-    "types": [
-      "node",
-      "react"
-    ]
   },
-  "include": [
-    "app",
-    "components",
-    "lib",
-    "messages",
-    "prisma"
-  ]
+  "include": ["app", "components", "lib", "messages", "prisma"]
 }
