@@ -1,27 +1,94 @@
+// app/api/jobs/[jobId]/ingest/route.ts
+export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
-export const runtime = 'nodejs'; // tu l’as déjà normalement
-import { NextRequest, NextResponse } from 'next/server'
-import { prisma } from '@/lib/prisma'
-import { extractTextFromFile } from '@/lib/extraction'
-import { scoreCandidateForJob } from '@/lib/scoring'
+export const maxDuration = 60;
 
-export async function POST(req: NextRequest, { params }: { params: { jobId: string } }) {
-  const { jobId } = params
-  const form = await req.formData()
-  const files = form.getAll('files')
-  if (!files.length) return NextResponse.json({ error: 'No files' }, { status: 400 })
-  const results: any[] = []
-  for (const f of files) {
-    if (!(f instanceof File)) continue
-    const text = await extractTextFromFile(f)
-    const firstLine = (text.split('\n').map(s => s.trim()).filter(Boolean)[0] || 'Candidat').slice(0, 120)
-    const candidate = await prisma.candidate.create({ data: { fullName: firstLine, tenant: { connect: { id: 'tenant-demo' } } } })
-    const doc = await prisma.document.create({
-      data: { kind: 'cv', storageUri: `upload://${f.name}`, textContent: text, tenantId: 'tenant-demo', candidateId: candidate.id, jobId }
-    })
-    await prisma.extraction.create({ data: { documentId: doc.id, schemaVersion: 'v0', payload: {} } })
-    const match = await scoreCandidateForJob(candidate.id, jobId, text)
-    results.push({ candidate_id: candidate.id, ...match })
+import { NextRequest, NextResponse } from 'next/server';
+import { prisma } from '@/lib/prisma';
+import { extractTextFromFile } from '@/lib/extraction';
+import { scoreCandidateForJob } from '@/lib/scoring';
+
+export async function POST(
+  req: NextRequest,
+  { params }: { params: { jobId: string } }
+) {
+  try {
+    const jobId = params?.jobId;
+    if (!jobId) {
+      return NextResponse.json({ error: 'Missing jobId in URL' }, { status: 400 });
+    }
+
+    // Vérifie que l’offre existe
+    const job = await prisma.job.findUnique({ where: { id: jobId } });
+    if (!job) {
+      return NextResponse.json({ error: 'Job not found' }, { status: 404 });
+    }
+
+    const form = await req.formData();
+    const files = form.getAll('files').filter((f): f is File => f instanceof File);
+
+    if (files.length === 0) {
+      return NextResponse.json(
+        { error: 'No files uploaded. Use form-data with field name "files".' },
+        { status: 400 }
+      );
+    }
+
+    const results: Array<Record<string, unknown>> = [];
+
+    for (const file of files) {
+      const filename = file.name || 'upload';
+      const lower = filename.toLowerCase();
+
+      // Types supportés (MVP)
+      if (!(lower.endsWith('.pdf') || lower.endsWith('.docx') || lower.endsWith('.txt'))) {
+        results.push({ file: filename, error: 'Unsupported file type (use PDF, DOCX or TXT)' });
+        continue;
+      }
+
+      // Extraction du texte (PDF via import dynamique, DOCX via mammoth, TXT direct)
+      const text = await extractTextFromFile(file);
+
+      // Petit fallback pour nommer le candidat (première ligne non vide du CV)
+      const displayName =
+        (text.split('\n').map(s => s.trim()).find(Boolean) ?? 'Candidat').slice(0, 120);
+
+      // Création candidat + document
+      const candidate = await prisma.candidate.create({
+        data: { fullName: displayName, tenant: { connect: { id: 'tenant-demo' } } }
+      });
+
+      const doc = await prisma.document.create({
+        data: {
+          kind: 'cv',
+          storageUri: `upload://${filename}`,
+          textContent: text,
+          tenantId: 'tenant-demo',
+          candidateId: candidate.id,
+          jobId
+        }
+      });
+
+      await prisma.extraction.create({
+        data: { documentId: doc.id, schemaVersion: 'v0', payload: {} }
+      });
+
+      // Scoring & label (Vert/Orange/Rouge)
+      const match = await scoreCandidateForJob(candidate.id, jobId, text);
+
+      results.push({
+        file: filename,
+        candidate_id: candidate.id,
+        ...match
+      });
+    }
+
+    return NextResponse.json({ job_id: jobId, results });
+  } catch (error: any) {
+    console.error('[ingest] error:', error);
+    return NextResponse.json(
+      { error: 'Ingestion failed', details: error?.message ?? String(error) },
+      { status: 500 }
+    );
   }
-  return NextResponse.json({ results })
 }

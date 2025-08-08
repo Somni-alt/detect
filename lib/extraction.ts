@@ -1,7 +1,6 @@
-// lib/extraction.ts
 import mammoth from 'mammoth';
 
-// ⬇️ nouveau: import dynamique de pdf-parse
+// import dynamique de pdf-parse pour éviter les fichiers de test au build
 async function parsePdf(buf: Buffer): Promise<string> {
   const mod: any = await import('pdf-parse');
   const pdfParse = mod.default || mod;
@@ -12,7 +11,7 @@ async function parsePdf(buf: Buffer): Promise<string> {
 export async function extractTextFromFile(file: File): Promise<string> {
   const name = file.name.toLowerCase();
   const arrayBuffer = await file.arrayBuffer();
-  // @ts-ignore Node Buffer côté server
+  // @ts-ignore: Buffer côté Node/Edge
   const buf: Buffer = Buffer.from(arrayBuffer);
 
   if (name.endsWith('.pdf')) {
@@ -25,31 +24,16 @@ export async function extractTextFromFile(file: File): Promise<string> {
   if (name.endsWith('.txt')) {
     return buf.toString('utf-8');
   }
-  // Fallback très basique
   return buf.toString('utf-8');
-  
-  // En haut tu as déjà: import mammoth from 'mammoth';
-// et la fonction parsePdf(...) + extractTextFromFile(...)
-
-// ⬇️ ajoute ceci à la fin du fichier
-const SKILL_REGEX = /\b(react|node(?:\.js)?|typescript|javascript|python|java|kafka|docker|kubernetes|postgres(?:ql)?|aws|gcp|azure)\b/ig;
-
-export function extractSkills(text: string): string[] {
-  const set = new Set<string>();
-  for (const m of text.matchAll(SKILL_REGEX)) {
-    const v = (m[1] || m[0]).toLowerCase();
-    set.add(v);
-  }
-  return Array.from(set).sort();
-}// --- à ajouter en bas de lib/extraction.ts ---
-const SKILL_REGEX = /\b(react|node(?:\.js)?|typescript|javascript|python|java|kafka|docker|kubernetes|postgres(?:ql)?|aws|gcp|azure)\b/ig;
-
-export function extractSkills(text: string): string[] {
-  const set = new Set<string>();
-  for (const m of text.matchAll(SKILL_REGEX)) {
-    const v = (m[1] || m[0]).toLowerCase();
-    set.add(v);
-  }
-  return Array.from(set).sort();
 }
+
+const SKILL_REGEX = /\b(react|node(?:\.js)?|typescript|javascript|python|java|kafka|docker|kubernetes|postgres(?:ql)?|aws|gcp|azure)\b/ig;
+
+export function extractSkills(text: string): string[] {
+  const set = new Set<string>();
+  for (const m of text.matchAll(SKILL_REGEX)) {
+    const v = (m[1] || m[0]).toLowerCase();
+    set.add(v);
+  }
+  return Array.from(set).sort();
 }
