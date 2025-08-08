@@ -1,0 +1,91 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+generator client {
+  provider = "prisma-client-js"
+}
+model Tenant {
+  id         String   @id @default(uuid())
+  name       String
+  dataRegion String   @default("EU")
+  createdAt  DateTime @default(now())
+  users      User[]
+  jobs       Job[]
+  candidates Candidate[]
+  documents  Document[]
+}
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  role      String
+  createdAt DateTime @default(now())
+  tenantId  String
+  tenant    Tenant   @relation(fields: [tenantId], references: [id])
+}
+model Job {
+  id           String   @id @default(uuid())
+  title        String
+  description  String
+  location     String?
+  contractType String?
+  mustHave     String[]
+  niceToHave   String[]
+  seniority    String?
+  salaryRange  String?
+  source       String?
+  status       String   @default("open")
+  createdAt    DateTime @default(now())
+  tenantId     String
+  tenant       Tenant   @relation(fields: [tenantId], references: [id])
+  matches      MatchScore[]
+  documents    Document[]
+}
+model Candidate {
+  id         String   @id @default(uuid())
+  fullName   String?
+  email      String?
+  phone      String?
+  location   String?
+  consentAt  DateTime?
+  createdAt  DateTime @default(now())
+  tenantId   String
+  tenant     Tenant   @relation(fields: [tenantId], references: [id])
+  documents  Document[]
+  matches    MatchScore[]
+}
+model Document {
+  id            String   @id @default(uuid())
+  kind          String
+  storageUri    String
+  textContent   String?
+  ocrConfidence Float?
+  createdAt     DateTime @default(now())
+  tenantId      String
+  tenant        Tenant   @relation(fields: [tenantId], references: [id])
+  candidateId   String?
+  candidate     Candidate? @relation(fields: [candidateId], references: [id])
+  jobId         String?
+  job           Job? @relation(fields: [jobId], references: [id])
+  extraction    Extraction?
+}
+model Extraction {
+  id            String   @id @default(uuid())
+  schemaVersion String
+  payload       Json
+  createdAt     DateTime @default(now())
+  documentId    String   @unique
+  document      Document @relation(fields: [documentId], references: [id])
+}
+model MatchScore {
+  id          String   @id @default(uuid())
+  score       Float
+  label       String
+  rationale   String?
+  features    Json
+  createdAt   DateTime @default(now())
+  jobId       String
+  job         Job @relation(fields: [jobId], references: [id])
+  candidateId String
+  candidate   Candidate @relation(fields: [candidateId], references: [id])
+}
