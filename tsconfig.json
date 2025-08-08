@@ -8,9 +8,7 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "baseUrl": ".",
-    "paths": {
-      "@/*": ["./*"]
-    }
+    "paths": { "@/*": ["./*"] }
   },
-  "include": ["app", "components", "lib", "messages", "prisma"]
+  "include": ["app", "components", "lib", "messages", "prisma", "types"]
 }
