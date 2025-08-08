@@ -1,4 +1,4 @@
-import pdfParse from 'pdf-parse-fixed-promise'
+import pdfParse from 'pdf-parse'
 import mammoth from 'mammoth'
 
 export async function extractTextFromFile(file: File): Promise<string> {

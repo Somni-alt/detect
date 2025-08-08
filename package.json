@@ -1,6 +1,7 @@
 {
   "name": "@detect/web",
   "private": true,
+  "engines": { "node": "20.x" },
   "scripts": {
     "dev": "next dev -p 3000",
     "build": "next build",
@@ -15,7 +16,7 @@
     "next-intl": "^3.17.2",
     "clsx": "^2.1.1",
     "@prisma/client": "^5.16.1",
-    "pdf-parse-fixed-promise": "^1.2.2",
+    "pdf-parse": "^1.1.1",
     "mammoth": "^1.6.0",
     "zod": "^3.23.8"
   },
