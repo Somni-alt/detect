@@ -27,4 +27,19 @@ export async function extractTextFromFile(file: File): Promise<string> {
   }
   // Fallback très basique
   return buf.toString('utf-8');
+  
+  // En haut tu as déjà: import mammoth from 'mammoth';
+// et la fonction parsePdf(...) + extractTextFromFile(...)
+
+// ⬇️ ajoute ceci à la fin du fichier
+const SKILL_REGEX = /\b(react|node(?:\.js)?|typescript|javascript|python|java|kafka|docker|kubernetes|postgres(?:ql)?|aws|gcp|azure)\b/ig;
+
+export function extractSkills(text: string): string[] {
+  const set = new Set<string>();
+  for (const m of text.matchAll(SKILL_REGEX)) {
+    const v = (m[1] || m[0]).toLowerCase();
+    set.add(v);
+  }
+  return Array.from(set).sort();
+}
 }
