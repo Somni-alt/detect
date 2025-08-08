@@ -1,10 +1,10 @@
 {
   "home": {
     "jobs_title": "Jobs",
-    "jobs_desc": "Create a job and ingest CVs/Cover letters for scoring.",
-    "candidates_title": "Candidates (Green/Amber/Red)",
-    "candidates_desc": "Filter, compare and justify the scores.",
-    "chat_title": "Assistant",
-    "chat_desc": "Ask the bot to explain a score or draft an email."
+    "jobs_desc": "Create and centralize postings from LinkedIn, Indeed, etc.",
+    "candidates_title": "Candidates",
+    "candidates_desc": "Upload resumes/cover letters, automatic extraction & analysis.",
+    "chat_title": "AI Assistant",
+    "chat_desc": "Ask the bot to speed up triage (Green/Amber/Red)."
   }
 }

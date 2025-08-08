@@ -1,10 +1,10 @@
 {
   "home": {
-    "jobs_title": "Offres",
-    "jobs_desc": "Cr\u00e9ez une offre et importez des CV/LM pour scoring.",
-    "candidates_title": "Candidats (Vert/Orange/Rouge)",
-    "candidates_desc": "Filtrez, comparez et justifiez les scores.",
-    "chat_title": "Assistant",
-    "chat_desc": "Posez vos questions au bot pour expliquer un score ou r\u00e9diger un email."
+    "jobs_title": "Offres / Jobs",
+    "jobs_desc": "Crée et centralise tes offres depuis LinkedIn, Indeed, etc.",
+    "candidates_title": "Candidats",
+    "candidates_desc": "Dépose les CV/LM, extraction et analyse automatiques.",
+    "chat_title": "Assistant IA",
+    "chat_desc": "Pose tes questions au bot pour accélérer le tri (Vert/Orange/Rouge)."
   }
 }
