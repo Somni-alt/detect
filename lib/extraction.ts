@@ -41,5 +41,15 @@ export function extractSkills(text: string): string[] {
     set.add(v);
   }
   return Array.from(set).sort();
+}// --- à ajouter en bas de lib/extraction.ts ---
+const SKILL_REGEX = /\b(react|node(?:\.js)?|typescript|javascript|python|java|kafka|docker|kubernetes|postgres(?:ql)?|aws|gcp|azure)\b/ig;
+
+export function extractSkills(text: string): string[] {
+  const set = new Set<string>();
+  for (const m of text.matchAll(SKILL_REGEX)) {
+    const v = (m[1] || m[0]).toLowerCase();
+    set.add(v);
+  }
+  return Array.from(set).sort();
 }
 }

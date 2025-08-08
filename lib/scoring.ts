@@ -33,5 +33,5 @@ export async function scoreCandidateForJob(candidateId: string, jobId: string, t
     data: { jobId, candidateId, score: Number(score.toFixed(2)), label, rationale, features }
   })
   return match
-  import { extractSkills } from './extraction';
+  import { extractSkills } from '@/lib/extraction';
 }
