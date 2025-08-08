@@ -1,3 +1,4 @@
+export const dynamic = 'force-dynamic';
 import Link from 'next/link';
 import {getLocale, getTranslations} from 'next-intl/server';
 export default async function HomePage() {
